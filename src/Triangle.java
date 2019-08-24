@@ -1,11 +1,12 @@
+import java.awt.*;
 import java.util.Arrays;
 
 /**
  * Represents a triangle in 3d space.
  */
-public class Triangle implements Shape {
+public class Triangle {
 
-    private double[] corner1;
+    private double[] corner1; // x, y, z coordinates of each corner
     private double[] corner2;
     private double[] corner3;
 
@@ -23,4 +24,7 @@ public class Triangle implements Shape {
                 ", corner3=" + Arrays.toString(corner3) +
                 '}';
     }
+//    public Polygon toPolygon(Triangle triangle){
+//
+//    }
 }

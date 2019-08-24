@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.io.*;
 import java.util.*;
 
@@ -6,10 +7,10 @@ import java.util.*;
  */
 public class Wireframe {
 
-    Triangle[] triangles; // Array of triangles that make up a wireframe
+    Triangle[] shapes; // Array of triangles that make up a wireframe
 
-    public Wireframe(Triangle[] triangles) {
-        this.triangles = triangles;
+    public Wireframe(Triangle[] shapes) {
+        this.shapes = shapes;
     }
 
     /**
@@ -38,18 +39,12 @@ public class Wireframe {
                 s = new Scanner(br.readLine());
                 triangles[i] = new Triangle(vertices.get(s.nextInt()), vertices.get(s.nextInt()), vertices.get(s.nextInt()));
             }
-            if(br.readLine() != null){ // Too many triangles present
+            if (br.readLine() != null) { // Too many triangles present
                 throw new IOException();
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (InputMismatchException e) {
-            throw new IOException();
-        } catch (NumberFormatException e) {
-            throw new IOException();
-        } catch (NoSuchElementException e) {
-            throw new IOException();
-        } catch (NullPointerException e) {
+        } catch (NumberFormatException | NoSuchElementException | NullPointerException e) {
             throw new IOException();
         }
         return new Wireframe(triangles);
