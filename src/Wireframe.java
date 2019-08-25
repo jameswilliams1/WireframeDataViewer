@@ -1,5 +1,9 @@
+import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -7,8 +11,8 @@ import java.util.HashMap;
  */
 public class Wireframe {
     private static final int DIMENSIONS = 3; // Number of dimensions that specify each point
-    private HashMap<Integer, Point> vertices; // Numbered points 1-n of each vertex in the wireframe
-    private Shape2d[] shapes; // Array of 2d shapes that make up the wireframe
+    private final HashMap<Integer, Point> vertices; // Numbered points 1-n of each vertex in the wireframe
+    private final Shape2d[] shapes; // Array of 2d shapes that make up the wireframe
     //TODO Change to store each unique line rather than points
 
     /**
@@ -19,7 +23,7 @@ public class Wireframe {
      * @param shapes   Array of Shape2d objects that make up the wireframe, constructed using Point objects that
      *                 reference points in vertices
      */
-    public Wireframe(HashMap<Integer, Point> vertices, Shape2d[] shapes) {
+    private Wireframe(HashMap<Integer, Point> vertices, Shape2d[] shapes) {
         this.vertices = vertices;
         this.shapes = shapes;
     }
@@ -91,10 +95,13 @@ public class Wireframe {
     /**
      * Draws the Wireframe onto a canvas using draw() methods of each shape contained within it.
      *
-     * @param canvas Graphics2d canvas to draw onto
+     * @param canvas    Graphics2d canvas to draw onto
      * @param transform Transformation matrix to apply before drawing
      */
-    public void draw(Graphics2D canvas, Matrix transform) {
+    public void draw(Graphics2D canvas, Matrix transform, Component panel) {
+        BufferedImage image = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_ARGB); // Display image
+        double[] zBuffer = new double[image.getWidth()*image.getHeight()]; // Array to keep track of closest pixels
+        Arrays.fill(zBuffer, -Double.MIN_VALUE);
         for (Shape2d shape : this.shapes) {
             shape.draw(canvas, transform);
         }

@@ -6,27 +6,37 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import static java.lang.Math.toRadians;
+
 public class DataViewer extends JFrame
         implements ActionListener, ChangeListener {
 
-    static final int SLIDER_MIN = 0;
-    static final int SLIDER_MAX = 360;
-    static final int SLIDER_INIT = 0;
+    private static final int SLIDER_MIN = 0;
+    private static final int SLIDER_MAX = 360;
+    private static final int SLIDER_INIT = 0;
     // Minimum dimensions of JFrame
-    static final int FRAME_WIDTH = 800;
-    static final int FRAME_HEIGHT = 900;
+    private static final int MIN_FRAME_WIDTH = 800;
+    private static final int MIN_FRAME_HEIGHT = 900;
+    private static final double INITIAL_SCALE_FACTOR = 1.0;
     // Menu items
-    JMenuItem openItem, quitItem, helpItem;
+    private JMenuItem openItem;
+    private JMenuItem quitItem;
+    private JMenuItem helpItem;
     // Buttons to change the size of the figure
-    JButton biggerButton, smallerButton;
+    private final JButton biggerButton;
+    private final JButton smallerButton;
     // Sliders for rotation angles
-    JSlider sliderXY, sliderXZ, sliderYZ;
-    DisplayPanel displayPanel;
+    private final JSlider sliderXY;
+    private final JSlider sliderXZ;
+    private final JSlider sliderYZ;
+    private final DisplayPanel displayPanel; // Container to draw image inside
+    private double scaleFactor;
 
-    public DataViewer() {
+    private DataViewer() {
         super("Wireframe Viewer");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setMinimumSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
+        this.setMinimumSize(new Dimension(MIN_FRAME_WIDTH, MIN_FRAME_HEIGHT));
+        this.scaleFactor = INITIAL_SCALE_FACTOR;
 
         makeMenu();
 
@@ -62,7 +72,7 @@ public class DataViewer extends JFrame
     public void actionPerformed(ActionEvent event) {
 
         JComponent source = (JComponent) event.getSource();
-        if (source == openItem) { // TODO reset sliders/size on load
+        if (source == openItem) {
             JFileChooser chooser = new JFileChooser("./");
             int retVal = chooser.showOpenDialog(this);
             if (retVal == JFileChooser.APPROVE_OPTION) {
@@ -70,19 +80,24 @@ public class DataViewer extends JFrame
                     this.displayPanel.wireframe = Wireframe.readShapesFromFile(chooser.getSelectedFile(), 3);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    //TODO popup when load fails
                 }
+                this.scaleFactor = INITIAL_SCALE_FACTOR;
+                this.sliderXY.setValue(SLIDER_INIT);
+                this.sliderYZ.setValue(SLIDER_INIT);
+                this.sliderXZ.setValue(SLIDER_INIT);
                 this.displayPanel.repaint();
             }
         } else if (source == quitItem) {
             System.out.println("Quitting ...");
             System.exit(0);
-        } else if (source == helpItem) {
+        } else if (source == helpItem) { //TODO help popup
             System.out.println("Help me!");
         } else if (source == biggerButton) {
-            this.displayPanel.wireframe.scale(2.0);
+            this.scaleFactor *= 2;
             this.displayPanel.repaint();
         } else if (source == smallerButton) {
-            this.displayPanel.wireframe.scale(0.5);
+            this.scaleFactor /= 2;
             this.displayPanel.repaint();
         }
     }
@@ -95,7 +110,7 @@ public class DataViewer extends JFrame
         }
     }
 
-    public void makeMenu() {
+    private void makeMenu() {
         JMenuBar menuBar = new JMenuBar();
         this.setJMenuBar(menuBar);
 
@@ -118,7 +133,7 @@ public class DataViewer extends JFrame
         helpItem.addActionListener(this);
     }
 
-    JSlider makeSlider(JPanel panel, String heading) {
+    private JSlider makeSlider(JPanel panel, String heading) {
         JSlider slider = new JSlider(SLIDER_MIN, SLIDER_MAX, SLIDER_INIT);
         slider.setBorder(BorderFactory.createTitledBorder(heading));
         slider.addChangeListener(this);
@@ -139,17 +154,12 @@ public class DataViewer extends JFrame
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
             g2d.translate(getWidth() / 2, getHeight() / 2); // Set origin to centre of panel
-
-            // Calculate rotation matrix
-            double XY = Math.toRadians(sliderXY.getValue());
-            double YZ = Math.toRadians(sliderYZ.getValue());
-            double XZ = Math.toRadians(sliderXZ.getValue());
-            Matrix transform = Matrix.getRotateXY(XY).multiply(Matrix.getRotateYZ(YZ)).multiply(Matrix.getRotateXZ(XZ));
-            this.wireframe.draw(g2d, transform);
+            // Calculate rotation/scale matrices
+            double XY = toRadians(sliderXY.getValue());
+            double YZ = toRadians(sliderYZ.getValue());
+            double XZ = toRadians(sliderXZ.getValue());
+            Matrix transform = Matrix.getRotateXY(XY).multiply(Matrix.getRotateYZ(YZ)).multiply(Matrix.getRotateXZ(XZ)).multiply(Matrix.getScaleMatrix(scaleFactor));
+            this.wireframe.draw(g2d, transform, this);
         }
-
     }
-
-
 }
-
