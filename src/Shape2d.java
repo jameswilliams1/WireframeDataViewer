@@ -1,14 +1,15 @@
 import java.awt.*;
 import java.awt.geom.Path2D;
+import java.util.Arrays;
 
 /**
  * Represents a 2d shape in 3d space.
  */
 public class Shape2d {
 
-    private Point[] vertices; // Array of shape vertices as Point objects, must be in sequential order around perimeter of shape
-    private Color lineColor;
-    private Color fillColor;
+    protected Point[] vertices; // Array of shape vertices as Point objects, must be in sequential order around perimeter of shape
+    protected Color lineColor;
+    protected Color fillColor;
 
     public Shape2d(Point[] vertices, Color lineColor, Color fillColor) {
         this.vertices = vertices;
@@ -28,11 +29,12 @@ public class Shape2d {
      *
      * @param canvas
      */
-    public void draw(Graphics2D canvas) {
+    public void draw(Graphics2D canvas, Matrix transform) {
         Path2D.Double path = new Path2D.Double();
-        path.moveTo(this.vertices[0].getX(), this.vertices[0].getY()); // Start at first point
-        for (int i = 1; i < this.vertices.length; ++i) {
-            path.lineTo(this.vertices[i].getX(), this.vertices[i].getY()); // Draw a line to each subsequent point
+        Point[] newVertices = Arrays.stream(this.vertices).map((Point p) -> transform.transformPoint(p)).toArray(Point[]::new); // Create new array of transformed points
+        path.moveTo(newVertices[0].x, newVertices[0].y); // Start at first point
+        for (int i = 1; i < newVertices.length; ++i) {
+            path.lineTo(newVertices[i].x, newVertices[i].y); // Draw a line to each subsequent point
         }
         path.closePath();
         canvas.setColor(this.lineColor);
@@ -40,4 +42,5 @@ public class Shape2d {
         canvas.setColor(this.fillColor);
         canvas.fill(path);
     }
+
 }

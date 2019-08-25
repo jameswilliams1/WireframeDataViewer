@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.awt.geom.Path2D;
 import java.io.*;
 import java.util.HashMap;
 
@@ -7,9 +6,10 @@ import java.util.HashMap;
  * Represents a wireframe of a 3d image constructed from 2d shapes.
  */
 public class Wireframe {
+    private static final int DIMENSIONS = 3; // Number of dimensions that specify each point
     private HashMap<Integer, Point> vertices; // Numbered points 1-n of each vertex in the wireframe
     private Shape2d[] shapes; // Array of 2d shapes that make up the wireframe
-    private static final int DIMENSIONS = 3; // Number of dimensions that specify each point
+    //TODO Change to store each unique line rather than points
 
     /**
      * Constructs a Wireframe from a numbered (1-n) HashMap of vertices (Points) and an array of Shape2d objects where
@@ -24,7 +24,7 @@ public class Wireframe {
         this.shapes = shapes;
     }
 
-    public Wireframe() {
+    public Wireframe() { // Empty wireframe
         this.vertices = new HashMap<>();
         this.shapes = new Shape2d[0];
     }
@@ -87,16 +87,29 @@ public class Wireframe {
         return new Wireframe(vertices, shapes);
     }
 
-    public void draw(Graphics2D canvas) {
-        for(Shape2d shape: this.shapes){
-            shape.draw(canvas);
+
+    /**
+     * Draws the Wireframe onto a canvas using draw() methods of each shape contained within it.
+     *
+     * @param canvas Graphics2d canvas to draw onto
+     * @param transform Transformation matrix to apply before drawing
+     */
+    public void draw(Graphics2D canvas, Matrix transform) {
+        for (Shape2d shape : this.shapes) {
+            shape.draw(canvas, transform);
         }
     }
-    public void scale(double scaleFactor){
-        System.out.println("Scale" + scaleFactor);
-        for(Point vertex: this.vertices.values()){
+
+    /**
+     * Scales the coordinates of each vertex in the Wireframe by a specified factor.
+     *
+     * @param scaleFactor Factor to scale each vertex by
+     */
+    public void scale(double scaleFactor) {
+        for (Point vertex : this.vertices.values()) {
             vertex.scale(scaleFactor);
-            System.out.println(vertex);
         }
     }
+
+
 }

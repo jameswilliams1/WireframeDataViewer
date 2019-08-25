@@ -2,9 +2,9 @@
  * Represents a point in 3d space.
  */
 public class Point {
-    private double x; // x, y, z cartesian coordinates
-    private double y;
-    private double z;
+    protected double x; // x, y, z cartesian coordinates
+    protected double y;
+    protected double z;
 
     public Point(double x, double y, double z) {
         this.x = x;
@@ -27,17 +27,6 @@ public class Point {
                 '}';
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public double getZ() {
-        return z;
-    }
 
     public void scale(double scaleFactor) {
         this.x = x * scaleFactor;
