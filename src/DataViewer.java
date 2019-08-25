@@ -172,15 +172,15 @@ public class DataViewer extends JFrame
 
     // Program entry point
     public static void main(String[] args) {
-//        try {
-//            Wireframe wireframe = Wireframe.readTrianglesFromFile("cuboid.dat");
-//            for (int i = 0; i < wireframe.shapes.length; ++i) {
-//                System.out.println(wireframe.shapes[i]);
-//
-//            }
-//        } catch (IOException e) {
-//            System.out.println("Invalid file");
-//        }
+        try {
+            Wireframe wireframe = Wireframe.readShapesFromFile(new File("cuboid.dat"), 3);
+            for (int i = 0; i < wireframe.shapes.length; ++i) {
+                System.out.println(wireframe.shapes[i]);
+
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
 
         new DataViewer();
     }
