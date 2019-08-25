@@ -1,3 +1,5 @@
+import java.awt.*;
+import java.awt.geom.Path2D;
 import java.io.*;
 import java.util.HashMap;
 
@@ -6,12 +8,25 @@ import java.util.HashMap;
  */
 public class Wireframe {
     private HashMap<Integer, Point> vertices; // Numbered points 1-n of each vertex in the wireframe
-    private Shape2d[] shapes; // Array of 2d shapes that make up the wireframe, made from points that use references to vertices
+    private Shape2d[] shapes; // Array of 2d shapes that make up the wireframe
     private static final int DIMENSIONS = 3; // Number of dimensions that specify each point
 
+    /**
+     * Constructs a Wireframe from a numbered (1-n) HashMap of vertices (Points) and an array of Shape2d objects where
+     * each is specified from references to points in the HashMap.
+     *
+     * @param vertices HashMap of vertices making up the shape: Point objects numbered 1-n
+     * @param shapes   Array of Shape2d objects that make up the wireframe, constructed using Point objects that
+     *                 reference points in vertices
+     */
     public Wireframe(HashMap<Integer, Point> vertices, Shape2d[] shapes) {
         this.vertices = vertices;
         this.shapes = shapes;
+    }
+
+    public Wireframe() {
+        this.vertices = new HashMap<>();
+        this.shapes = new Shape2d[0];
     }
 
     /**
@@ -34,12 +49,11 @@ public class Wireframe {
             try { // Set number of vertices in shape
                 numVertices = Integer.parseInt(br.readLine());
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 throw new IOException("Number of vertices could not be parsed.");
             }
             try {
                 for (int i = 1; i <= numVertices; ++i) { // Fill HashMap of vertices
-                    String[] line = br.readLine().split("\\s+"); // Split each line by whitespace
+                    String[] line = br.readLine().trim().split("\\s+"); // Split each line by whitespace
                     double[] coordinates = new double[DIMENSIONS];
                     for (int j = 0; j < DIMENSIONS; ++j) {
                         coordinates[j] = Double.parseDouble(line[j]);
@@ -47,19 +61,17 @@ public class Wireframe {
                     vertices.put(i, new Point(coordinates));
                 }
             } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
                 throw new IOException("Coordinates could not be parsed.");
             }
             try { // Set number of shapes in wireframe
                 numShapes = Integer.parseInt(br.readLine());
                 shapes = new Shape2d[numShapes];
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 throw new IOException("Number of shapes could not be parsed.");
             }
             try {
                 for (int i = 0; i < numShapes; ++i) { // Fill Array of shapes
-                    String[] line = br.readLine().split("\\s+"); // Split each line by whitespace
+                    String[] line = br.readLine().trim().split("\\s+"); // Split each line by whitespace
                     Point[] shapeVertices = new Point[numPoints];
                     for (int j = 0; j < numPoints; ++j) {
                         shapeVertices[j] = vertices.get(Integer.parseInt(line[j])); // Add shapes by vertex references
@@ -67,13 +79,24 @@ public class Wireframe {
                     shapes[i] = new Shape2d(shapeVertices);
                 }
             } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                e.printStackTrace();
                 throw new IOException("Vertices of shapes could not be parsed.");
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
             throw new IOException("Specified data file does not exist.");
         }
         return new Wireframe(vertices, shapes);
+    }
+
+    public void draw(Graphics2D canvas) {
+        for(Shape2d shape: this.shapes){
+            shape.draw(canvas);
+        }
+    }
+    public void scale(double scaleFactor){
+        System.out.println("Scale" + scaleFactor);
+        for(Point vertex: this.vertices.values()){
+            vertex.scale(scaleFactor);
+            System.out.println(vertex);
+        }
     }
 }

@@ -1,31 +1,10 @@
-//
-// 159.235, 2019 S2
-// Startup code for Assignment 2
-//
-//
-
-// Put in some package name if you like
-// eg nz.ac.massey.graphics.wire
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
 import java.io.*;
 
-// Here is a skeleton class that sets up a JFrame, some sliders and
-// buttons
-
-// You may add whatever features you see fit, in order to complete the
-// assignment.
-
-// Suggest you put your event listeners in the main program file
-//   - this would be the "controller" part of the MVC design
-
-// You can also change the class names too
 public class DataViewer extends JFrame
         implements ActionListener, ChangeListener {
 
@@ -46,6 +25,8 @@ public class DataViewer extends JFrame
     static final int FRAME_HEIGHT = 900;
     static final double HALF_SIZE = 400.0;
 
+    DisplayPanel displayPanel;
+
     // Need this for the menu items and buttons
     public void actionPerformed(ActionEvent event) {
 
@@ -55,7 +36,12 @@ public class DataViewer extends JFrame
             JFileChooser chooser = new JFileChooser("./");
             int retVal = chooser.showOpenDialog(this);
             if (retVal == JFileChooser.APPROVE_OPTION) {
-                File myFile = chooser.getSelectedFile();
+                try {
+                    this.displayPanel.wireframe = Wireframe.readShapesFromFile(chooser.getSelectedFile(), 3);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                this.displayPanel.repaint();
             }
 
         } else if (source == quitItem) {
@@ -64,7 +50,11 @@ public class DataViewer extends JFrame
         } else if (source == helpItem) {
             System.out.println("Help me!");
         } else if (source == biggerButton) {
+            this.displayPanel.wireframe.scale(2.0);
+            this.displayPanel.repaint();
         } else if (source == smallerButton) {
+            this.displayPanel.wireframe.scale(0.5);
+            this.displayPanel.repaint();
         }
 
     }
@@ -143,8 +133,8 @@ public class DataViewer extends JFrame
         biggerButton.addActionListener(this);
         smallerButton.addActionListener(this);
 
-        JPanel imageP = new DisplayPanel();
-        content.add(imageP, BorderLayout.CENTER);
+        this.displayPanel = new DisplayPanel();
+        content.add(this.displayPanel, BorderLayout.CENTER); // Add the wireframe panel
 
         this.setVisible(true);
     }
@@ -152,35 +142,19 @@ public class DataViewer extends JFrame
     // An inner class to handle the final rendering of the figure
     class DisplayPanel extends JPanel {
 
+        Wireframe wireframe = new Wireframe();
+
         public void paintComponent(Graphics g) {
-            // Code to draw the transformed triangles
-
-            // You may want to redefine the g2 object so
-            // the coordinate system is centred in the
-            // middle of the panel with the y-axis going
-            // up the screen
-
-//            super.paintComponent(g); // call superclass's paintComponent
-            Graphics2D g2d = (Graphics2D) g; // cast g to Graphics2D
-
-
-            g2d.setStroke(new BasicStroke(2.0f));
-            g2d.setPaint(Color.BLACK);
-            g2d.draw(new Line2D.Double(395, 30, 320, 150));
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.translate(getWidth() / 2, getHeight() / 2); // Set origin to centre of panel
+            this.wireframe.draw(g2d);
         }
+
     }
 
     // Program entry point
     public static void main(String[] args) {
-        try {
-            Wireframe wireframe = Wireframe.readShapesFromFile(new File("cuboid.dat"), 3);
-            for (int i = 0; i < wireframe.shapes.length; ++i) {
-                System.out.println(wireframe.shapes[i]);
-
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
 
         new DataViewer();
     }

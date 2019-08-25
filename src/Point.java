@@ -18,6 +18,15 @@ public class Point {
         this.z = coordinates[2];
     }
 
+    @Override
+    public String toString() {
+        return "Point{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
+    }
+
     public double getX() {
         return x;
     }
@@ -28,5 +37,12 @@ public class Point {
 
     public double getZ() {
         return z;
+    }
+
+    public void scale(double scaleFactor) {
+        this.x = x * scaleFactor;
+        this.y = y * scaleFactor;
+        this.z = z * scaleFactor;
+
     }
 }
