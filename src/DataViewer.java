@@ -31,6 +31,7 @@ public class DataViewer extends JFrame
     private final JSlider sliderYZ;
     private final DisplayPanel displayPanel; // Container to draw image inside
     private double scaleFactor;
+    private static Point VIEW_VECTOR = new Point(0, 0, 1); // Set view vector in z direction
 
     private DataViewer() {
         super("Wireframe Viewer");
@@ -159,7 +160,7 @@ public class DataViewer extends JFrame
             double YZ = toRadians(sliderYZ.getValue());
             double XZ = toRadians(sliderXZ.getValue());
             Matrix transform = Matrix.getRotateXY(XY).multiply(Matrix.getRotateYZ(YZ)).multiply(Matrix.getRotateXZ(XZ)).multiply(Matrix.getScaleMatrix(scaleFactor));
-            this.wireframe.draw(g2d, transform, this);
+            this.wireframe.draw(g2d, transform, VIEW_VECTOR);
         }
     }
 }

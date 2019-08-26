@@ -1,8 +1,6 @@
-import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.geom.Path2D;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -13,7 +11,6 @@ public class Wireframe {
     private static final int DIMENSIONS = 3; // Number of dimensions that specify each point
     private final HashMap<Integer, Point> vertices; // Numbered points 1-n of each vertex in the wireframe
     private final Shape2d[] shapes; // Array of 2d shapes that make up the wireframe
-    //TODO Change to store each unique line rather than points
 
     /**
      * Constructs a Wireframe from a numbered (1-n) HashMap of vertices (Points) and an array of Shape2d objects where
@@ -93,30 +90,30 @@ public class Wireframe {
 
 
     /**
-     * Draws the Wireframe onto a canvas using draw() methods of each shape contained within it.
+     * Draws the Wireframe onto a canvas using triangles.
      *
      * @param canvas    Graphics2d canvas to draw onto
      * @param transform Transformation matrix to apply before drawing
      */
-    public void draw(Graphics2D canvas, Matrix transform, Component panel) {
-        BufferedImage image = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_ARGB); // Display image
-        double[] zBuffer = new double[image.getWidth()*image.getHeight()]; // Array to keep track of closest pixels
-        Arrays.fill(zBuffer, -Double.MIN_VALUE);
+    public void draw(Graphics2D canvas, Matrix transform, Point viewVector) {
         for (Shape2d shape : this.shapes) {
-            shape.draw(canvas, transform);
+            Point[] newVertices = Arrays.stream(shape.vertices).map(transform::transformPoint).toArray(Point[]::new); // Create new array of transformed points
+            Point AB = newVertices[2].subtract(newVertices[1]); // Vectors of two triangle sides
+            Point AC = newVertices[1].subtract(newVertices[0]);
+            Point normal = AB.crossProduct(AC); // Normal of triangle
+            double normalDotView = normal.dotProduct(viewVector);
+            if (normalDotView > 0) { // Shape is facing camera
+                Path2D.Double path = new Path2D.Double();
+                path.moveTo(newVertices[0].x, newVertices[0].y); // Start at first point
+                for (int i = 1; i < newVertices.length; ++i) {
+                    path.lineTo(newVertices[i].x, newVertices[i].y); // Draw a line to each subsequent point
+                }
+                path.closePath();
+                canvas.setColor(shape.lineColor);
+                canvas.draw(path);
+                canvas.setColor(shape.fillColor);
+                canvas.fill(path);
+            }
         }
     }
-
-    /**
-     * Scales the coordinates of each vertex in the Wireframe by a specified factor.
-     *
-     * @param scaleFactor Factor to scale each vertex by
-     */
-    public void scale(double scaleFactor) {
-        for (Point vertex : this.vertices.values()) {
-            vertex.scale(scaleFactor);
-        }
-    }
-
-
 }
