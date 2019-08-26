@@ -17,11 +17,10 @@ public class DataViewer extends JFrame
     // Minimum dimensions of JFrame
     private static final int MIN_FRAME_WIDTH = 800;
     private static final int MIN_FRAME_HEIGHT = 900;
+    private static final int DIALOG_WIDTH = 400;
+    private static final int DIALOG_HEIGHT = 200;
     private static final double INITIAL_SCALE_FACTOR = 1.0;
-    // Menu items
-    private JMenuItem openItem;
-    private JMenuItem quitItem;
-    private JMenuItem helpItem;
+    private static Point VIEW_VECTOR = new Point(0, 0, 1); // Set view vector in z direction
     // Buttons to change the size of the figure
     private final JButton biggerButton;
     private final JButton smallerButton;
@@ -30,11 +29,14 @@ public class DataViewer extends JFrame
     private final JSlider sliderXZ;
     private final JSlider sliderYZ;
     private final DisplayPanel displayPanel; // Container to draw image inside
+    // Menu items
+    private JMenuItem openItem;
+    private JMenuItem quitItem;
+    private JMenuItem helpItem;
     private double scaleFactor;
-    private static Point VIEW_VECTOR = new Point(0, 0, 1); // Set view vector in z direction
 
     private DataViewer() {
-        super("Wireframe Viewer");
+        super("WireFrame Viewer");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setMinimumSize(new Dimension(MIN_FRAME_WIDTH, MIN_FRAME_HEIGHT));
         this.scaleFactor = INITIAL_SCALE_FACTOR;
@@ -59,7 +61,7 @@ public class DataViewer extends JFrame
         biggerButton.addActionListener(this);
         smallerButton.addActionListener(this);
 
-        this.displayPanel = new DisplayPanel(); // Add the wireframe panel
+        this.displayPanel = new DisplayPanel(); // Add the WireFrame panel
         content.add(this.displayPanel, BorderLayout.CENTER);
 
         this.setVisible(true);
@@ -67,6 +69,14 @@ public class DataViewer extends JFrame
 
     public static void main(String[] args) {
         new DataViewer();
+    }
+
+    public void popup(String title, String message) { // Display a dialog when there's an error
+        JDialog window = new JDialog(this, title, true);
+        window.setLocation((int) (this.getWidth() / 2 - DIALOG_WIDTH / 2), (int) (this.getHeight() / 2 - DIALOG_HEIGHT / 2));
+        window.add(new JLabel("<html><p style='margin:10px;'>" + message + "</p></html>"));
+        window.setMinimumSize(new Dimension(DIALOG_WIDTH, DIALOG_HEIGHT));
+        window.setVisible(true);
     }
 
     // Need this for the menu items and buttons
@@ -78,10 +88,10 @@ public class DataViewer extends JFrame
             int retVal = chooser.showOpenDialog(this);
             if (retVal == JFileChooser.APPROVE_OPTION) {
                 try {
-                    this.displayPanel.wireframe = Wireframe.readShapesFromFile(chooser.getSelectedFile(), 3);
+                    this.displayPanel.wireframe = WireFrame.readShapesFromFile(chooser.getSelectedFile(), 3);
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    //TODO popup when load fails
+                    String errorMessage = e.getMessage() + " Please see the help menu for information on how to use this program.";
+                    this.popup("Error", errorMessage);
                 }
                 this.scaleFactor = INITIAL_SCALE_FACTOR;
                 this.sliderXY.setValue(SLIDER_INIT);
@@ -92,8 +102,12 @@ public class DataViewer extends JFrame
         } else if (source == quitItem) {
             System.out.println("Quitting ...");
             System.exit(0);
-        } else if (source == helpItem) { //TODO help popup
-            System.out.println("Help me!");
+        } else if (source == helpItem) {
+            this.popup("Help", "This program displays wire frame images from a data file. The file " +
+                    "chosen must contain first a line specifying the number of vertices that define a shape, " +
+                    "then a line for each vertex, n specifying its (x,y,z) coordinates. Then a line containing " +
+                    "the number of triangles that compose the image, followed by a line for each specifying which " +
+                    "of the previously specified vertices it uses (1-n).");
         } else if (source == biggerButton) {
             this.scaleFactor *= 2;
             this.displayPanel.repaint();
@@ -149,7 +163,7 @@ public class DataViewer extends JFrame
     // An inner class to handle the final rendering of the figure
     class DisplayPanel extends JPanel {
 
-        Wireframe wireframe = new Wireframe();
+        WireFrame wireframe = new WireFrame();
 
         public void paintComponent(Graphics g) {
             super.paintComponent(g);

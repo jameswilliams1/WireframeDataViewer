@@ -1,5 +1,5 @@
 /**
- * Represents a point in 3d space.
+ * Represents a point/vector in 3d space.
  */
 public class Point {
     double x; // x, y, z cartesian coordinates

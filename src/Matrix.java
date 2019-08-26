@@ -8,9 +8,9 @@ class Matrix {
     /**
      * Construct a Matrix from a 2d array of doubles (must be a square matrix).
      *
-     * @param values
+     * @param values 2x2 array of matrix values
      */
-    Matrix(double[][] values) {
+    private Matrix(double[][] values) {
         this.values = values;
     }
 
@@ -84,6 +84,12 @@ class Matrix {
         return new Matrix(result);
     }
 
+    /**
+     * Apply a matrix transformation to a point.
+     *
+     * @param point Point to transform
+     * @return Transformed Point
+     */
     public Point transformPoint(Point point) {
         double[] result = new double[SIZE];
         double[] p = new double[]{point.x, point.y, point.z};
@@ -97,6 +103,4 @@ class Matrix {
         }
         return new Point(result);
     }
-
-
 }

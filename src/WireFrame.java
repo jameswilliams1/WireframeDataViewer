@@ -5,43 +5,37 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 /**
- * Represents a wireframe of a 3d image constructed from 2d shapes.
+ * Represents a wire frame of a 3d image constructed from 2d shapes.
  */
-public class Wireframe {
+public class WireFrame {
     private static final int DIMENSIONS = 3; // Number of dimensions that specify each point
-    private final HashMap<Integer, Point> vertices; // Numbered points 1-n of each vertex in the wireframe
-    private final Shape2d[] shapes; // Array of 2d shapes that make up the wireframe
+    private final Shape2d[] shapes; // Array of 2d shapes that make up the wire frame
 
     /**
-     * Constructs a Wireframe from a numbered (1-n) HashMap of vertices (Points) and an array of Shape2d objects where
-     * each is specified from references to points in the HashMap.
+     * Constructs a WireFrame from an array of Shape2d objects.
      *
-     * @param vertices HashMap of vertices making up the shape: Point objects numbered 1-n
-     * @param shapes   Array of Shape2d objects that make up the wireframe, constructed using Point objects that
-     *                 reference points in vertices
+     * @param shapes Array of Shape2d objects that make up the wire frame
      */
-    private Wireframe(HashMap<Integer, Point> vertices, Shape2d[] shapes) {
-        this.vertices = vertices;
+    private WireFrame(Shape2d[] shapes) {
         this.shapes = shapes;
     }
 
-    public Wireframe() { // Empty wireframe
-        this.vertices = new HashMap<>();
+    WireFrame() { // Empty WireFrame
         this.shapes = new Shape2d[0];
     }
 
     /**
-     * Parses a data file into a Wireframe object. Expects first line to be an int, n specifying number of vertices,
+     * Parses a data file into a WireFrame object. Expects first line to be an int, n specifying number of vertices,
      * followed by n lines of three doubles specifying the x, y, z coordinates of each vertex. Then a line specifying
-     * the number of shapes which make up the wireframe, followed by lines of three ints specifying which of the
+     * the number of shapes which make up the wire frame, followed by lines of three integers specifying which of the
      * previous vertices (1-n) make up the shape.
      *
      * @param dataFile  Path to file to read data from
      * @param numPoints Number of points that make up each shape, must be greater than 2
-     * @return Wireframe object
+     * @return WireFrame object
      * @throws IOException If file cannot be parsed
      */
-    public static Wireframe readShapesFromFile(File dataFile, int numPoints) throws IOException {
+    public static WireFrame readShapesFromFile(File dataFile, int numPoints) throws IOException {
         HashMap<Integer, Point> vertices = new HashMap<>(); // vertexNumber: [x,y,z]
         Shape2d[] shapes;
         try (BufferedReader br = new BufferedReader(new FileReader(dataFile))) {
@@ -64,7 +58,7 @@ public class Wireframe {
             } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
                 throw new IOException("Coordinates could not be parsed.");
             }
-            try { // Set number of shapes in wireframe
+            try { // Set number of shapes in WireFrame
                 numShapes = Integer.parseInt(br.readLine());
                 shapes = new Shape2d[numShapes];
             } catch (NumberFormatException e) {
@@ -85,12 +79,11 @@ public class Wireframe {
         } catch (FileNotFoundException e) {
             throw new IOException("Specified data file does not exist.");
         }
-        return new Wireframe(vertices, shapes);
+        return new WireFrame(shapes);
     }
 
-
     /**
-     * Draws the Wireframe onto a canvas using triangles.
+     * Draws the WireFrame onto a canvas using triangles.
      *
      * @param canvas    Graphics2d canvas to draw onto
      * @param transform Transformation matrix to apply before drawing
